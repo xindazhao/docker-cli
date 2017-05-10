@@ -118,6 +118,8 @@ type containerOptions struct {
 	runtime            string
 	autoRemove         bool
 	init               bool
+        gpuMemory          uint64
+        gpuPriority        int64
 
 	Image string
 	Args  []string
@@ -283,6 +285,8 @@ func addFlags(flags *pflag.FlagSet) *containerOptions {
 
 	flags.BoolVar(&copts.init, "init", false, "Run an init inside the container that forwards signals and reaps processes")
 	flags.SetAnnotation("init", "version", []string{"1.25"})
+	flags.Uint64Var(&copts.gpuMemory, "gpu-memory", 0, "Limit GPU memory")
+	flags.Int64Var(&copts.gpuPriority, "gpu-priority", 0, "Limit GPU priority")
 	return copts
 }
 
@@ -531,6 +535,8 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		Ulimits:              copts.ulimits.GetList(),
 		DeviceCgroupRules:    copts.deviceCgroupRules.GetAll(),
 		Devices:              deviceMappings,
+		GPUMemory:            copts.gpuMemory,
+		GPUPriority:          copts.gpuPriority,
 	}
 
 	config := &container.Config{
